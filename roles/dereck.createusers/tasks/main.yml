@@ -1,0 +1,48 @@
+---
+- name: Copy sudoers file for safety
+  command: cp -f /etc/sudoers /etc/sudoers.tmp
+
+- name: Create sudoers file backup
+  command: cp -f /etc/sudoers /etc/sudoers.bak
+
+- name: Create admins group
+  group: name=admins system=yes state=present
+
+- name: make sure we can sudo as admin group
+  lineinfile: dest=/etc/sudoers.tmp state=present regexp='^%admin' line='%admin ALL=(ALL) NOPASSWD:ALL'
+
+- name: Final sudoers file check
+  shell: visudo -q -c -f /etc/sudoers.tmp && cp -f /etc/sudoers.tmp /etc/sudoers
+          
+       
+- name: Add User user1
+  user: name=user1
+        groups=admin
+        append=yes
+
+- name: Adding keys to authorized_keys user1
+  authorized_key: user=user1 key="$user_key" path=/home/user1/.ssh/authorized_keys state=present
+  with_items: ssh_keys.results
+
+  
+- name: Add User user2
+  user: name=user2
+        groups=admin
+        append=yes
+
+- name: Adding keys to authorized_keys user2
+  authorized_key: user=user2 key="$user_key" path=/home/user2/.ssh/authorized_keys state=present
+  with_items: ssh_keys.results
+  
+- name: Add User user3
+  user: name=user3
+        groups=admin
+        append=yes
+
+- name: Adding keys to authorized_keys user3
+  authorized_key: user=user3 key="$user_key" path=/home/user3/.ssh/authorized_keys state=present
+  with_items: ssh_keys.results
+  
+
+
+
